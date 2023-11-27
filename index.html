@@ -1,0 +1,123 @@
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>   <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3a Planner</title>
+</head>
+
+<body>
+    <div class="container">
+        <div class="sub-container">
+            
+            <div class="checkbox-container">
+                <input type="checkbox" name="KS" id="KS" disabled>    <h1>Klassenstunde</h1>
+            </div>
+
+            <div class="checkbox-container">
+                <input type="checkbox" name="KS" id="MVV" disabled>    <h1>Mathe Vorverschoben</h1>
+            </div>
+            
+            
+        </div>
+    </div>
+
+    <div class="edit-button"> Bearbeiten </div>
+</body>
+
+<script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js";
+    import { getDatabase, ref, update, get, child} from "https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js";
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
+  
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyAhw5tEGYVSKyM14R6uiUW8gRplU_kCv6s",
+      authDomain: "plan-klasse3a.firebaseapp.com",
+      projectId: "plan-klasse3a",
+      storageBucket: "plan-klasse3a.appspot.com",
+      messagingSenderId: "967775701125",
+      appId: "1:967775701125:web:44f39f9f92a4431d44c1ec",
+      databaseURL: "https://plan-klasse3a-default-rtdb.europe-west1.firebasedatabase.app/"
+    };
+  
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+
+    // Initialize Realtime Database and get a reference to the service
+    const db = getDatabase(app);
+
+    let ks = false;
+    let mvv = false;
+
+    export function set_KS(KS_bool) {
+        update(ref(db), {
+            "/KS": KS_bool,
+        });
+    }
+
+    export function set_MVV(MVV_bool) {
+        update(ref(db), {
+            "/MVV": MVV_bool,
+        });
+    }
+
+    export function get_KS(KS_bool) {
+        return get(child(ref(db), `/KS`)).then((s) => { return s.val()})
+    }
+
+    export function get_MVV(MVV_bool) {
+        return get(child(ref(db), `/MVV`)).then((s) => {return s.val()})
+    }
+
+    let is_edit_mode = false;
+
+    function edit_mode() {
+        $("input[type=checkbox]").prop("disabled", false);
+        $(".edit-button").text("Speichern")
+    }
+
+    function read_mode() {
+
+        ks = $("#KS").prop("checked")
+        mvv = $("#MVV").prop("checked")
+
+        set_KS(ks)
+        set_MVV(mvv)
+
+        $("input[type=checkbox]").prop("disabled", true);
+        $(".edit-button").text("Bearbeiten")
+    }
+
+    async function set_checkboxes() {
+        ks = await get_KS();
+        mvv = await get_MVV();
+
+        $("#KS").prop("checked", ks);
+        $("#MVV").prop("checked", mvv);
+    }
+
+    $(document).ready(async function (){
+
+
+        await set_checkboxes()
+
+        $(".edit-button").click(function () { 
+            
+            if (!is_edit_mode) {  
+                console.log("edit")  
+                is_edit_mode = true;
+                edit_mode()
+            } else {
+                console.log("read")  
+                is_edit_mode = false;
+                read_mode()
+            }
+        });
+    })
+        
+</script>
+
+</html>
