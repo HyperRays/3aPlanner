@@ -57,6 +57,7 @@ body {
 
     .edit-button{
         opacity: 0.2;
+        font-size: 1.6em;
     }
 
     .edit-button:hover{
